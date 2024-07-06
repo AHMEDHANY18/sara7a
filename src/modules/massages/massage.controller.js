@@ -16,7 +16,7 @@ export const addMessage = asyncHandler( async (req, res,next) => {
         const { content, receiverId } = req.body;
         const receiver = await User.findById(receiverId);
         if (!receiver) {
-            next(new Error("receiver not found"))
+            return next(new Error("receiver not found"))
         }
         const newMessage = new Massage({ content, receiverId });
         await newMessage.save();
@@ -36,7 +36,7 @@ export const deleteMessage = asyncHandler(async (req, res,next) => {
     const { messageId } = req.params;
     const message = await Massage.findById(messageId);
     if (!message || message.receiverId.toString() !== userId.toString()) {
-        next(new Error("Message not found or you do not have permission to delete this message"))
+        return next(new Error("Message not found or you do not have permission to delete this message"))
     }
     await Massage.deleteOne({ _id: messageId });
     res.status(200).json({ message: "Message deleted successfully" });
