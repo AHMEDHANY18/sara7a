@@ -19,7 +19,7 @@ export const signup = asyncHandler(async (req, res, next) => {
   const { username, email, password } = req.body;
   const userExists = await User.findOne({ email });
   if (userExists) {
-next(new Error("email already exists"));
+return next(new Error("email already exists"));
 }
 
   const otp = Math.floor(Math.random() * 1000000) + 1;
@@ -50,7 +50,7 @@ export const confirmEmail = asyncHandler(async (req, res, next) => {
   const { otp } = req.body;
   const user = await User.findOne({ otp, otpExpiry: { $gt: Date.now() } });
   if (!user) {
-    next(new Error("invalid otp or otpExpiry"));
+   return next(new Error("invalid otp or otpExpiry"));
   }
   user.confirmed = true;
   user.otp = undefined;
@@ -64,7 +64,7 @@ export const signin = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email, confirmed: true });
   if (!user || !bcrypt.compareSync(password, user.password)) {
-      next(new Error("invalid email or password"));
+     return next(new Error("invalid email or password"));
   }
   const token = jwt.sign({ id: user._id }, "ahmed", { expiresIn: '10d' });
   res.status(200).json({ token });
@@ -74,7 +74,7 @@ export const signin = asyncHandler(async (req, res, next) => {
 export const profile = asyncHandler(async (req, res, next) => {
   const user = await User.findById(req.user._id);
   if (!user) {
-      next(new Error("User not found"));
+     return next(new Error("User not found"));
   }
   res.status(200).json(user);
 });
